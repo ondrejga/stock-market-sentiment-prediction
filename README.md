@@ -1,6 +1,6 @@
 # Stock Market Sentiment Prediction
 
-This project leverages state-of-the-art natural language processing (NLP) models to analyze Twitter sentiment and predict movements in popular American stocks. It processes financial tweets, extracts sentiment scores using transformer-based models, and evaluates their impact on trading strategies—enabling more data-driven investment decisions.
+This project leverages state-of-the-art natural language processing (NLP) models to analyze Twitter sentiment and predict movements in popular American stocks. It processes financial tweets, extracts sentiment scores using transformer-based models, and evaluates their impact on trading strategies enabling more data-driven investment decisions.
 
 ## Objective
 
