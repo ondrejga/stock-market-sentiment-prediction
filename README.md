@@ -52,54 +52,48 @@ The task is modeled as a binary classification problem:
 A grid search was conducted across the four models with a primary focus on tuning key hyperparameters—such as the number of hidden layers for LSTM and Transformer models.
 
 **Result**:  
-Tree-based models outperformed the others in terms of both **accuracy** and **F1-score**.  
+Tree-based models without sentiment and technical indicators features outperformed the others in terms of both **accuracy** and **F1-score**.  
 See `results_assessment.ipynb` for more details.
 
-### Step 2: Advanced Tree-Based Model Tuning
+### Step 2: Advanced Tree-Based Model Backtesting
 
-Given their superior performance, a more extensive grid search was performed for **XGBoost** and **AdaBoost** models. For each model, I tested combinations of hyperparameters and feature subsets.
+Since tree-based models showed the most promise, I backtested XGBoost and AdaBoost using the following procedure:
 
-I selected the top-performing models as follows:
+## Backtesting procedure
 
-- 2 from AdaBoost
-- 2 from XGBoost  
-  (One optimized for **accuracy**, the other for a **compound score** combining accuracy and F1-score.)
+- **Period:** Weekly re-training and evaluation from **2022-12-10** to **2024-08-24**.  
+- **Data window:** For each stock, use the **past three years** of price data.  
+- **Validation split:** The **most recent 30 days** are held out as a validation set; the remaining history is used for training.  
+- **Sample construction:** Each data point is a sliding-window sample with lagged features (e.g., price_{t-4}, price_{t-3}, price_{t-2}, price_{t-1}, price_t).  
+  - **Features:** volume, close, open, high, low (for the lagged days).  
+  - **Target:** binary label indicating whether the next-day price (t+1) is higher than the current-day price (t).
 
-These models were:
+## Model selection & deployment
 
-- Trained on **166 trading days**
-- Tested on **76 trading days**
+- For each week and each stock, perform hyperparameter tuning for XGBoost and AdaBoost on the training + validation split.  
+- Select the model and hyperparameters that maximize **profit** on the validation set.  
+- “Deploy” the selected model for one week to generate predictions.  
+- Maintain one separate model per stock.
 
-### Simulated Trading Strategy
+Across the full backtesting period this procedure produced **720 predictions**.
 
-To evaluate real-world effectiveness, a basic trading strategy was implemented:
+## Results
 
-- **Long Position**: If the model predicts an upward movement, buy at the beginning and sell at the end of the day.
-- **Short Position**: If the model predicts a downward movement, short at the beginning and close at the end of the day.
+- **Simulated trading rule:** go long when the model predicts an upward move; go short otherwise.  
+- **Average weekly return (simulated):** **0.0547%**  
+- **Mean prediction accuracy:** **49.79%**
 
-Each model was trained and evaluated **100 times**, and the expected performance metrics were averaged.
+With only simple price and volume features, the strategy produced results consistent with random guessing and did not generate a reliable edge.
 
-| Model     | Optimized For     | Accuracy (%) | Expected Profit (%) |
-|-----------|-------------------|--------------|----------------------|
-| AdaBoost  | Accuracy           | 57.10        | 6.55                 |
-| AdaBoost  | Compound Score     | 51.89        | 8.69                 |
-| XGBoost   | Accuracy           | 55.81        | 6.95                 |
-| XGBoost   | Compound Score     | 56.09        | **16.12**            |
+## Recommendations / Next steps
 
-### Key Insight
+- **Add richer features:** incorporate technical indicators, Twitter sentiment, financial news, macroeconomic variables, and alternative data sources.  
+- **Backtest other architectures:** run equivalent backtests for LSTM and Transformer models — although they underperformed on static tests, expanded features or temporal modeling may improve their performance.  
+- **Try alternative prediction targets:** consider multi-day horizons, regression on price change magnitude, or probabilistic outputs instead of binary labels.  
+- **Refine evaluation metric:** optimize directly for trading performance (e.g., risk-adjusted returns) rather than only accuracy.
 
-Surprisingly, the best-performing model (XGBoost optimized for compound score) **did not use sentiment scores or technical indicators**—only historical prices. It achieved:
+See `backtesting.ipynb` for full implementation details and results.
 
-- **56.09% accuracy**
-- **16.12% profit** (using the basic trading strategy)
-
-### Important Caveat
-
-These results should be interpreted with caution. The model selection and hyperparameter tuning were done based on **test set performance**, which introduces **data leakage** and likely overestimation of real-world effectiveness.
-
-To more accurately assess performance in a real trading environment:
-- Hyperparameters should be selected using a **validation set**
-- Final evaluation should be conducted on a **separate test set**
 
 ---
 
@@ -108,6 +102,7 @@ To more accurately assess performance in a real trading environment:
 - `sentiment_assessment.ipynb` — Sentiment extraction and analysis
 - `training.ipynb` — Model training, tuning
 - `results_assessment.ipynb` — Model evaluation
+- `backtesting.ipynb`  — Model backtesting
 
 ---
 
