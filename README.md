@@ -85,13 +85,13 @@ Across the full backtesting period this procedure produced **720 predictions**.
 
 With only simple price and volume features, the strategy produced results consistent with random guessing and did not generate a sustainable edge.
 
-#### Recommendations / Next steps
+#### Next steps
 
 - **Add richer features:** incorporate technical indicators, Twitter sentiment, financial news, macroeconomic variables, and alternative data sources.  
 - **Backtest other architectures:** extend this backtesting framework to LSTM and Transformer models — although they underperformed in static tests, richer features may change outcomes.  
 - **Explore alternative prediction targets:** consider multi-day horizons, regression on price changes, or probabilistic forecasts.  
 - **Refine evaluation metrics:** optimize directly for trading performance (e.g., risk-adjusted returns) rather than accuracy alone.
-
+- **Use ensemble methods:** explore majority voting or blending across multiple model types, not just tree-based models.
 See `backtesting.ipynb` for full implementation details and results.
 
 ---
